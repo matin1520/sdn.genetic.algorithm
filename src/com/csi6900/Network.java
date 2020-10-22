@@ -37,6 +37,17 @@ public class Network
         links.put(nodeA, linkedValues);
     }
 
+    public boolean areLinked(Node a, Node b)
+    {
+        var linksToA = links.get(a);
+        var linksToB = links.get(b);
+
+        if ((linksToA != null && linksToA.contains(b)) || (linksToB !=null && linksToB.contains(a)))
+            return true;
+
+        return false;
+    }
+
     private void removeNodeAndLinks(Node n)
     {
         // remove all links from node n

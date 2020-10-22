@@ -7,11 +7,21 @@ import java.util.*;
 
 public class GraphViz
 {
-    private final String dirName = "graphs";
+    private String dirName = "graphs";
 
     public GraphViz()
     {
+        this("");
+    }
+
+    public GraphViz(String subDir)
+    {
         var directory = new File(dirName);
+        if (!directory.exists())
+            directory.mkdir();
+
+        dirName = dirName + "/" + subDir;
+        directory = new File(dirName);
         if (!directory.exists())
             directory.mkdir();
     }
@@ -28,7 +38,28 @@ public class GraphViz
         var stringBuilder = new StringBuilder();
         stringBuilder.append("graph network {");
         stringBuilder.append("rankdir=LR;");
-        stringBuilder.append("shape=diamond;");
+
+        stringBuilder.append("subgraph cluster0 { style=invis;");
+        for (var kvp : sortedLinks.entrySet())
+        {
+            if (kvp.getKey().getClass().isAssignableFrom(Host.class))
+                stringBuilder.append(kvp.getKey().getName() + ";");
+
+            if (kvp.getValue().getClass().isAssignableFrom(Host.class))
+                stringBuilder.append(kvp.getValue().getName() + ";");
+        }
+        stringBuilder.append("}");
+
+        stringBuilder.append("subgraph cluster1 { style=invis;");
+        for (var kvp : sortedLinks.entrySet())
+        {
+            if (kvp.getKey().getClass().isAssignableFrom(Switch.class))
+                stringBuilder.append(kvp.getKey().getName() + ";");
+
+            if (kvp.getValue().getClass().isAssignableFrom(Switch.class))
+                stringBuilder.append(kvp.getValue().getName() + ";");
+        }
+        stringBuilder.append("}");
 
         for (var kvp : sortedLinks.entrySet())
         {

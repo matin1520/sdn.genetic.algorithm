@@ -14,15 +14,17 @@ public final class Config
     private static double removeSwitchProbability;
     private static double addHostProbability;
     private static double removeHostProbability;
-    private static int minimumLinkCount;
-    private static int maximumLinkCount;
+    private static int maxSwitchGenerationCount;
+    private static int maxHostGenerationCount;
+    private static int populationSize;
 
     public static double getAddSwitchProbability() { return addSwitchProbability; }
     public static double getRemoveSwitchProbability() { return removeSwitchProbability; }
     public static double getAddHostProbability() { return addHostProbability; }
     public static double getRemoveHostProbability() { return removeHostProbability; }
-    public static int getMinimumLinkCount() { return minimumLinkCount; }
-    public static int getMaximumLinkCount() { return maximumLinkCount; }
+    public static int getMaxSwitchGenerationCount() { return maxSwitchGenerationCount; }
+    public static int getMaxHostGenerationCount() { return maxHostGenerationCount; }
+    public static int getPopulationSize() { return populationSize; }
 
     public static boolean TryInitialize(String fileName)
     {
@@ -60,7 +62,8 @@ public final class Config
         removeSwitchProbability = Double.parseDouble(properties.getProperty("removeSwitchProbability"));
         addHostProbability = Double.parseDouble(properties.getProperty("addHostProbability"));
         removeHostProbability = Double.parseDouble(properties.getProperty("removeHostProbability"));
-        minimumLinkCount = Integer.parseInt(properties.getProperty("minimumLinkCount"));
-        maximumLinkCount = Integer.parseInt(properties.getProperty("maximumLinkCount"));
+        maxSwitchGenerationCount = Integer.parseInt(properties.getProperty("maxSwitchGenerationCount"));
+        maxHostGenerationCount = Integer.parseInt(properties.getProperty("maxHostGenerationCount"));
+        populationSize = Integer.parseInt(properties.getProperty("populationSize"));
     }
 }

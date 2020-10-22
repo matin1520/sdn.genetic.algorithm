@@ -22,7 +22,7 @@ public class Mutation
             if (addedSwitch == null)
                 throw new Exception("Could not add a random switch.");
 
-            addRandomLinks(addedSwitch);
+            Randomize.addRandomLinks(network, addedSwitch);
         }
 
         if (Randomize.generateDouble() < Config.getRemoveSwitchProbability())
@@ -39,44 +39,12 @@ public class Mutation
             if (addedHost == null)
                 throw new Exception("Could not add a random host.");
 
-            addRandomLinks(addedHost);
+            Randomize.addRandomLinks(network, addedHost);
         }
 
         if (Randomize.generateDouble() < Config.getRemoveHostProbability())
         {
             removeRandomHost();
-        }
-    }
-
-    private void addRandomLinks(Node node) throws Exception
-    {
-        var randomNbOfLinks = Randomize.generateInteger(Config.getMinimumLinkCount(), Config.getMaximumLinkCount());
-
-        if (node.getClass().isAssignableFrom(Host.class) && randomNbOfLinks > network.getSwitches().size())
-            throw new IllegalStateException("Cannot randomly link " +
-                    randomNbOfLinks + " nodes to a host when there are only " +
-                    network.getSwitches().size() + " switches.");
-
-        var combinedNodes = new HashSet<Node>();
-        combinedNodes.addAll(network.getSwitches());
-        combinedNodes.addAll(network.getHosts());
-        combinedNodes.remove(node);
-
-        for (int i = 0; i < randomNbOfLinks; i++)
-        {
-            Node nodeToLink;
-
-            do
-            {
-                nodeToLink = Randomize.selectFromSet(combinedNodes);
-            }
-            while (nodeToLink.getClass().isAssignableFrom(Host.class) &&
-                    node.getClass().isAssignableFrom(Host.class));
-
-            network.addLink(node, nodeToLink);
-            combinedNodes.remove(nodeToLink);
-
-            Logger.Info("Added a random link between " + node.getName() + " and " + nodeToLink.getName());
         }
     }
 

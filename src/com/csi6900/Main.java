@@ -9,7 +9,7 @@ public class Main
 
         try
         {
-            var network = new Network
+            /*var network = new Network
                     .Builder()
                     .withSwitch("s1")
                     .withSwitch("s2")
@@ -33,7 +33,10 @@ public class Main
 
             System.out.println("--------------------");
             network.print();
-            gv.getGraph(network.getGraphOutput(), "after");
+            gv.getGraph(network.getGraphOutput(), "after");*/
+
+            var population = new Population();
+            population.Graph();
         }
         catch (Exception e)
         {

@@ -1,5 +1,6 @@
 package com.csi6900;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class Randomize
             return min;
 
         if (min > max)
-            throw new Exception("(generateInteger) min value must be greater than max");
+            throw new Exception("min value must be greater than max");
 
         return random.nextInt(max - min) + min;
     }
@@ -36,5 +37,49 @@ public class Randomize
         }
 
         throw new RuntimeException("Not able to choose a random object from a set. This should not happen!");
+    }
+
+    public static void addRandomLinks(Network network, Node node) throws Exception
+    {
+        var isHostNode = node.getClass().isAssignableFrom(Host.class);
+        var switchCount = network.getSwitches().size();
+        var hostCount = network.getHosts().size();
+
+        int lowerBound = 1;
+        int upperBound = isHostNode ? switchCount : (hostCount + switchCount - 1);
+        int randomNbOfLinks = Randomize.generateInteger(lowerBound, upperBound);
+
+        var combinedNodes = new HashSet<Node>();
+        combinedNodes.addAll(network.getSwitches());
+
+        if (!isHostNode)
+        {
+            combinedNodes.addAll(network.getHosts());
+            combinedNodes.remove(node);
+        }
+
+        while (randomNbOfLinks > 0)
+        {
+            Node nodeToLink = Randomize.selectFromSet(combinedNodes);
+            while (network.areLinked(node, nodeToLink))
+            {
+                combinedNodes.remove(nodeToLink);
+                randomNbOfLinks--;
+
+                if (randomNbOfLinks > 0)
+                    nodeToLink = Randomize.selectFromSet(combinedNodes);
+                else
+                    break;
+            }
+
+            if (randomNbOfLinks > 0)
+            {
+                network.addLink(node, nodeToLink);
+                combinedNodes.remove(nodeToLink);
+                randomNbOfLinks--;
+
+                Logger.Info("Added a random link between " + node.getName() + " and " + nodeToLink.getName());
+            }
+        }
     }
 }
