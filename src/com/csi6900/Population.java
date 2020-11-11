@@ -1,8 +1,11 @@
 package com.csi6900;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Population
 {
@@ -18,9 +21,49 @@ public class Population
         for (int i = 0; i < Config.getPopulationSize(); i++)
         {
             var randomNetwork = GenerateRandomNetwork();
-            var fitness = Randomize.generateDouble() * 0.025d + 0.49d;
+            // TODO: Send this network to be run and get back the Result.txt
+            // CreateTopology(randomNetwork);
+            // var currFileName = RunTopo();
+            var fitness = GetFitness("/Users/matin.mansouri/csi6900/SDN/FUNCflowResult.txt");
             individuals.put(randomNetwork, fitness);
         }
+    }
+
+    private double GetFitness(String fileName) throws Exception
+    {
+        int executedNb = -1;
+        int failedNb = -1;
+        Scanner scanner = new Scanner(new File(fileName));
+        while (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            if (line.startsWith("[Total]"))
+            {
+                var values = line.split(" ");
+                for (String value : values)
+                {
+                    if (value.startsWith("[Executed]"))
+                    {
+                        var executed = value.split(":");
+                        executedNb = Integer.parseInt(executed[1]);
+                    }
+
+                    if (value.startsWith("[Failed]"))
+                    {
+                        var failed = value.split(":");
+                        failedNb = Integer.parseInt(failed[1]);
+                    }
+                }
+                break;
+            }
+        }
+
+        if (executedNb == -1 || failedNb == -1)
+        {
+            throw new Exception("Could not calculate fitness for file " + fileName);
+        }
+
+        return (double) failedNb / executedNb;
     }
 
     private Network GenerateRandomNetwork() throws Exception
