@@ -1,5 +1,6 @@
 # SDN Genetic Algorithm
 This repository contains the algorithm used to generate SDNs (using genetic algorithms) that causes most test failures.
+To set up an environment for TestOn on Ubuntu 18.04, the following [instructions](https://github.com/matin1520/sdn.genetic.algorithm/blob/master/documentation/Ubuntu%2018.04%20Local%20Setup.pdf) maybe used.
 
 ## Network validity criteria
 ### A network is considered to be valid while it respects the following criteria:
