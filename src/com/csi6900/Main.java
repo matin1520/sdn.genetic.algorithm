@@ -36,7 +36,7 @@ public class Main
             gv.getGraph(network.getGraphOutput(), "after");*/
 
             var population = new Population();
-            population.Graph();
+            //population.Graph();
         }
         catch (Exception e)
         {

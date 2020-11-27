@@ -16,14 +16,8 @@ public class GraphViz
 
     public GraphViz(String subDir)
     {
-        var directory = new File(dirName);
-        if (!directory.exists())
-            directory.mkdir();
-
-        dirName = dirName + "/" + subDir;
-        directory = new File(dirName);
-        if (!directory.exists())
-            directory.mkdir();
+        FileIO.CreateDirectory(dirName);
+        FileIO.CreateSubDirectory(dirName, subDir);
     }
 
     public void getGraph(HashMap<Node, Node> sortedLinks, String name)

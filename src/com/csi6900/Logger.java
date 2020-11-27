@@ -72,4 +72,7 @@ public class Logger
     public static void Info(String msg) { log(Level.INFO, msg); }
 
     public static void Warn(String msg) { log(Level.WARNING, msg); }
+
+    public static void Error(String msg) { log(Level.SEVERE, msg); }
+
 }

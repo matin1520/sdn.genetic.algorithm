@@ -1,7 +1,8 @@
 package com.csi6900;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -10,29 +11,164 @@ import java.util.Scanner;
 public class Population
 {
     // Map of individuals (network) to their fitness (double)
-    // Fitness should be minimized.
-    // i.e.: Trying to minimize f = passedTests/totalTests
+    // Fitness should be maximized.
+    // i.e.: Trying to maximize f = failedTests/totalTests
     private HashMap<Network, Double> individuals = new HashMap<>();
     private int hostCount = 1;
     private int switchCount = 1;
 
     public Population() throws Exception
     {
+        if (!FileIO.CreateDirectory("logs") || !FileIO.CreateSubDirectory("logs", "testRuns"))
+        {
+            throw new Exception("Cannot create directories 'logs/testRuns'");
+        }
+
+        var topoFilePath = Config.getnetworkTopologyPath();
+        var topoFileBackupPath = topoFilePath + ".backup";
+        if (!FileIO.CopyFile(topoFilePath, topoFileBackupPath))
+        {
+            throw new Exception("Cannot back up file '"+ topoFilePath + "'");
+        }
+
         for (int i = 0; i < Config.getPopulationSize(); i++)
         {
+            DeleteLogs();
+
             var randomNetwork = GenerateRandomNetwork();
-            // TODO: Send this network to be run and get back the Result.txt
-            // CreateTopology(randomNetwork);
-            // var currFileName = RunTopo();
-            var fitness = GetFitness("/Users/matin.mansouri/csi6900/SDN/FUNCflowResult.txt");
+            //Graph();
+            WriteNetworkToTopology(randomNetwork, topoFilePath, topoFileBackupPath);
+
+            RunTest(i + 1);
+
+            var resultPath = GetTestResultFilePath();
+            var fitness = GetFitness(resultPath);
             individuals.put(randomNetwork, fitness);
+        }
+
+        if (!FileIO.CopyFile(topoFileBackupPath, topoFilePath))
+        {
+            throw new Exception("Cannot replace back up file '" + topoFileBackupPath + "'");
+        }
+    }
+
+    private void RunTest(int networkIndex) throws Exception
+    {
+        var testPaths = Config.getTestOnTestPath().split("/");
+        var testName = testPaths[testPaths.length - 1];
+        var command = Config.getTestOnBinPath() + "cli.py";
+
+        try
+        {
+            ProcessBuilder builder = new ProcessBuilder(command, "run " + testName);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            InputStream is = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            var fw = new FileWriter("logs/testRuns/network" + networkIndex + ".log");
+            var newLine = System.getProperty("line.separator");
+            String line;
+            while ((line = reader.readLine()) != null)
+            {
+                fw.write(line + newLine);
+                fw.flush();
+            }
+
+            fw.close();
+        }
+        catch (IOException e)
+        {
+            Logger.Error("Could not run test. Details: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private void WriteNetworkToTopology(Network network, String topoFilePath, String topoFileBackupPath) throws FileNotFoundException
+    {
+        var fw = new PrintStream(new File(topoFilePath));
+        Scanner scanner = new Scanner(new File(topoFileBackupPath));
+        var capture = false;
+        while (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            if (line.isBlank())
+                continue;
+
+            if (capture && !line.startsWith("\t") && !line.startsWith(" "))
+                capture = false;
+
+            if (line.startsWith("class MyTopo"))
+            {
+                capture = true;
+                WriteNewTopology(fw, network);
+            }
+
+            if (!capture)
+                fw.println(line);
+        }
+        scanner.close();
+        fw.close();
+    }
+
+    private void WriteNewTopology(PrintStream printStream, Network network)
+    {
+        printStream.println("class MyTopo( Topo ):");
+        printStream.println("    def __init__( self ):");
+        printStream.println("        Topo.__init__( self )");
+
+        for (var h: network.getHosts())
+        {
+            printStream.println("        " + h.getName() + " = self.addHost( '" + h.getName() + "', ip='10.1.0.2/24' )");
+        }
+
+        for (var s: network.getSwitches())
+        {
+            printStream.println("        " + s.getName() + " = self.addSwitch( '" + s.getName() + "' )");
+        }
+
+        for (var src: network.getLinks().entrySet())
+        {
+            for (var dest: src.getValue())
+            {
+                printStream.println("        self.addLink( " + src.getKey().getName() + ", " + dest.getName() + " )");
+            }
+        }
+
+        printStream.println("        topos = { 'mytopo': ( lambda: MyTopo() ) }");
+    }
+
+    private String GetTestResultFilePath()
+    {
+        var fileLists = new File(Config.getTestOnLogsPath()).listFiles(File::isDirectory);
+        if (fileLists.length != 1)
+        {
+            throw new IndexOutOfBoundsException("There must only be 1 directory in TestON/logs/ folder.");
+        }
+        var files = fileLists[0].listFiles((dir, name) -> name.endsWith("Result.txt"));
+        if (files.length != 1)
+        {
+            throw new IndexOutOfBoundsException("There must only be 1 '*Result.txt' file in '" + fileLists[0].getAbsolutePath() + "'.");
+        }
+
+        return files[0].getAbsolutePath();
+    }
+
+    private void DeleteLogs() throws Exception
+    {
+        var fileLists = new File(Config.getTestOnLogsPath()).listFiles(File::isDirectory);
+        for (var file : fileLists)
+        {
+            FileUtils.deleteDirectory(file);
         }
     }
 
     private double GetFitness(String fileName) throws Exception
     {
-        int executedNb = -1;
-        int failedNb = -1;
+        double executedNb = -1;
+        double failedNb = -1;
+        double totalNb = -1;
+
         Scanner scanner = new Scanner(new File(fileName));
         while (scanner.hasNextLine())
         {
@@ -42,28 +178,36 @@ public class Population
                 var values = line.split(" ");
                 for (String value : values)
                 {
+                    if (value.startsWith("[Total]"))
+                    {
+                        var total = value.split(":");
+                        totalNb = Double.parseDouble(total[1]);
+                    }
+
                     if (value.startsWith("[Executed]"))
                     {
                         var executed = value.split(":");
-                        executedNb = Integer.parseInt(executed[1]);
+                        executedNb = Double.parseDouble(executed[1]);
                     }
 
                     if (value.startsWith("[Failed]"))
                     {
                         var failed = value.split(":");
-                        failedNb = Integer.parseInt(failed[1]);
+                        failedNb = Double.parseDouble(failed[1]);
                     }
                 }
                 break;
             }
         }
 
-        if (executedNb == -1 || failedNb == -1)
+        if (executedNb == -1 || failedNb == -1 || totalNb == -1)
         {
             throw new Exception("Could not calculate fitness for file " + fileName);
         }
 
-        return (double) failedNb / executedNb;
+        var alpha = Config.getAlpha();
+        var fitness = alpha * (failedNb / executedNb) + (1.0 - alpha) * (executedNb / totalNb);
+        return fitness;
     }
 
     private Network GenerateRandomNetwork() throws Exception
