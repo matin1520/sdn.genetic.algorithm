@@ -82,4 +82,11 @@ public class Randomize
             }
         }
     }
+
+    public static String getRandomIp() throws Exception
+    {
+        var ips = Config.getHostIps();
+        var randomIndex = generateInteger(0, ips.size());
+        return ips.get(randomIndex);
+    }
 }

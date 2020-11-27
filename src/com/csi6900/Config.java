@@ -1,10 +1,10 @@
 package com.csi6900;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 
 public final class Config
 {
@@ -22,6 +22,7 @@ public final class Config
     private static String testOnBinPath;
     private static String networkTopologyPath;
     private static double alpha;
+    private static ArrayList<String> hostIps;
 
     public static double getAddSwitchProbability() { return addSwitchProbability; }
     public static double getRemoveSwitchProbability() { return removeSwitchProbability; }
@@ -35,6 +36,7 @@ public final class Config
     public static String getTestOnBinPath() { return testOnBinPath; }
     public static String getnetworkTopologyPath() { return networkTopologyPath; }
     public static double getAlpha() { return alpha; }
+    public static ArrayList<String> getHostIps() { return hostIps; }
 
     public static boolean TryInitialize(String fileName)
     {
@@ -59,6 +61,23 @@ public final class Config
         {
             System.err.println("ERROR: Exception caught while loading config");
             System.out.println(ex.getMessage());
+            return false;
+        }
+
+        try
+        {
+            hostIps = new ArrayList<>();
+            var scanner = new Scanner(new File(properties.getProperty("hostIpsFilePath")));
+            while (scanner.hasNextLine())
+            {
+                String line = scanner.nextLine();
+                hostIps.add(line);
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("ERROR: Exception caught while loading host ip addresses.");
+            System.out.println(e.getMessage());
             return false;
         }
 

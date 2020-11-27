@@ -197,9 +197,9 @@ public class Network
             return this;
         }
 
-        public Builder withHost(String name)
+        public Builder withHost(String name) throws Exception
         {
-            hosts.add(new Host(name));
+            hosts.add(new Host(name, Randomize.getRandomIp()));
             return this;
         }
 

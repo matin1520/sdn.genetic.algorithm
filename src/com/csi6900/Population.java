@@ -10,9 +10,7 @@ import java.util.Scanner;
 
 public class Population
 {
-    // Map of individuals (network) to their fitness (double)
-    // Fitness should be maximized.
-    // i.e.: Trying to maximize f = failedTests/totalTests
+    // Map of individuals (network) to their fitness (double). Fitness should be maximized.
     private HashMap<Network, Double> individuals = new HashMap<>();
     private int hostCount = 1;
     private int switchCount = 1;
@@ -119,7 +117,7 @@ public class Population
 
         for (var h: network.getHosts())
         {
-            printStream.println("        " + h.getName() + " = self.addHost( '" + h.getName() + "', ip='10.1.0.2/24' )");
+            printStream.println("        " + h.getName() + " = self.addHost( '" + h.getName() + "', ip='" + h.getIpAddress() + "' )");
         }
 
         for (var s: network.getSwitches())

@@ -76,10 +76,10 @@ public class Mutation
         Logger.Info("Removed host " + hostToRemove.getName());
     }
 
-    private Host addRandomHost()
+    private Host addRandomHost() throws Exception
     {
         var hostName = "hx" + ++addedHostCount;
-        var hostToAdd = new Host(hostName);
+        var hostToAdd = new Host(hostName, Randomize.getRandomIp());
 
         if (network.addHost(hostToAdd))
         {
