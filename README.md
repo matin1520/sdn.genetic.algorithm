@@ -24,9 +24,18 @@ The mutation types of the algorithm is the followings:
 
 Each mutation type has a configurable probability of happening. The configurations are stored in *app.config* file. Note that there is no add/remove links operation. This is done implicitely through the 4 mutation types. Every time a switch or a host is added, there will be N numbers of link generated for that node, where N is a random number between 1 and the maximum possible links. Similarly, every time a switch. or a host is removed, all its links are also removed.
 
+## Fitness
+The fitness formula will be based on how many of the executed tests have failed. However, there may be cases where not all of the tests execute. Therefore, we will be accounting the number of tests run into our fitness formula as well. We define the weight percentage for each part of the formula as alpha (α). This value can be changed from the Configuration if need be, with a default value of 0.5. The fitness will give 50% weight to the ratio of failed tests and 50% weight to the ratio of run tests.
+
+![Fitness](https://github.com/matin1520/sdn.genetic.algorithm/blob/master/documentation/readme/fitnessFormula.png)
+
 ## Configuration
 ### app.config file
 This file consists of the following configurations (as of now):
+
+#### alpha
+This configuration sets the weight of each term of the fitness formula.
+Value can be between 0.0 and 1.0
 
 #### addSwitchProbability
 This configuration sets the probability of adding a random switch to the network.
@@ -54,3 +63,11 @@ The number of hosts generated will be a random number between 1 and *maxHostGene
 #### maxSwitchGenerationCount
 This configuration sets the maximum number of switches that can be generated for an individual network.
 The number of switches generated will be a random number between 1 and *maxSwitchGenerationCount*
+
+#### testOnTestPath
+This configuration sets the absolute path to the TestON's test directory.
+Example of value: /home/TestON/tests/SAMP/SAMPstartTemplate_1node
+
+#### networkTopologyPath
+This configuration sets the absolute path to the topology file to be modified.
+Example of value: /home/OnosSystemTest/TestON/tests/SAMP/SAMPstartTemplate_1node/Dependency/newFuncTopo.py
