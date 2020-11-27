@@ -71,3 +71,6 @@ Example of value: /home/TestON/tests/SAMP/SAMPstartTemplate_1node
 #### networkTopologyPath
 This configuration sets the absolute path to the topology file to be modified.
 Example of value: /home/OnosSystemTest/TestON/tests/SAMP/SAMPstartTemplate_1node/Dependency/newFuncTopo.py
+
+#### hostIpsFilePath
+This configurations sets the path to the file containing all possible host ips line by line.
