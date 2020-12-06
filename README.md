@@ -73,4 +73,15 @@ This configuration sets the absolute path to the topology file to be modified.
 Example of value: /home/OnosSystemTest/TestON/tests/SAMP/SAMPstartTemplate_1node/Dependency/newFuncTopo.py
 
 #### hostIpsFilePath
-This configurations sets the path to the file containing all possible host ips line by line.
+This configuration sets the path to the file containing all possible host ips line by line.
+
+#### selectionSize
+This configuration sets the size of the offsprings for the next generation.
+Example: if it is set to 4, the new generation will consist of 4 offsprings and 6 new individuals (assuming a population of size 10 of course)
+
+#### tournamentK
+This configuration sets the sensitivity of the tournament selection K.
+Example: if it is set to 3, during selection, 3 individuals will be randomly selected from which the fittest individual is chosen.
+
+#### generationNb
+This configuration sets the number of generations the algorithm will run.
