@@ -1,5 +1,6 @@
 package com.csi6900;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -37,6 +38,32 @@ public class Randomize
         }
 
         throw new RuntimeException("Not able to choose a random object from a set. This should not happen!");
+    }
+
+    public static ArrayList<Network> selectFromList(ArrayList<Network> list, int selectionSize)
+    {
+        var selected = new ArrayList<Network>();
+        for (var j = 0; j < selectionSize; j++)
+        {
+            var size = list.size();
+            var item = random.nextInt(size);
+            var i = 0;
+            var added = false;
+            for (Network obj : list)
+            {
+                if (i == item)
+                {
+                    added = selected.add(obj);
+                    break;
+                }
+                i++;
+            }
+
+            if (!added)
+                throw new RuntimeException("Not able to choose a random object from a list. This should not happen!");
+        }
+
+        return selected;
     }
 
     public static void addRandomLinks(Network network, Node node) throws Exception

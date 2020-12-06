@@ -8,10 +8,13 @@ public class Network
     private Set<Switch> switches;
     private Set<Host> hosts;
     private HashMap<Node, Set<Node>> links;
+    private double fitness;
 
     public Set<Switch> getSwitches() { return switches; }
     public Set<Host> getHosts() { return hosts; }
     public HashMap<Node, Set<Node>> getLinks() { return links; }
+    public double getFitness() { return fitness; }
+    public void setFitness(double f) { fitness = f; }
 
     public boolean addSwitch(Switch s) { return switches.add(s); }
     public boolean addHost(Host h)
@@ -237,6 +240,7 @@ public class Network
             network.switches = this.switches;
             network.hosts = this.hosts;
             network.links = this.links;
+            network.setFitness(0.0);
 
             return network;
         }

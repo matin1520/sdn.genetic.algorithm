@@ -5,13 +5,14 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Population
 {
     // Map of individuals (network) to their fitness (double). Fitness should be maximized.
-    private HashMap<Network, Double> individuals = new HashMap<>();
+    private ArrayList<Network> individuals = new ArrayList<>();
     private int hostCount = 1;
     private int switchCount = 1;
 
@@ -22,6 +23,55 @@ public class Population
             throw new Exception("Cannot create directories 'logs/testRuns'");
         }
 
+        for (int i = 0; i < Config.getPopulationSize(); i++)
+        {
+            var randomNetwork = GenerateRandomNetwork();
+            individuals.add(randomNetwork);
+        }
+    }
+
+    public ArrayList<Network> TournamentSelection()
+    {
+        var selection = new ArrayList<Network>();
+        for (var i = 0; i < Config.getSelectionSize(); i++)
+        {
+            var selected = Randomize.selectFromList(individuals, Config.getTournamentK());
+            var highestFitness = -1.0;
+            var highestIndex = 0;
+            for (var j = 0; j < selected.size(); j++)
+            {
+                var networkFitness = selected.get(j).getFitness();
+                if (networkFitness > highestFitness)
+                {
+                    highestFitness = networkFitness;
+                    highestIndex = j;
+                }
+            }
+
+            selection.add(selected.get(highestIndex));
+        }
+
+        return selection;
+    }
+
+    public void CreateNewGeneration(ArrayList<Network> offsprings) throws Exception
+    {
+        individuals = new ArrayList<>();
+        for (var offspring : offsprings)
+        {
+            individuals.add(offspring);
+        }
+
+        var remainder = Config.getPopulationSize() - offsprings.size();
+        for (int i = 0; i < remainder; i++)
+        {
+            var randomNetwork = GenerateRandomNetwork();
+            individuals.add(randomNetwork);
+        }
+    }
+
+    public void CalculateFitness() throws Exception
+    {
         var topoFilePath = Config.getnetworkTopologyPath();
         var topoFileBackupPath = topoFilePath + ".backup";
         if (!FileIO.CopyFile(topoFilePath, topoFileBackupPath))
@@ -29,19 +79,16 @@ public class Population
             throw new Exception("Cannot back up file '"+ topoFilePath + "'");
         }
 
-        for (int i = 0; i < Config.getPopulationSize(); i++)
+        for (int i = 0; i < individuals.size(); i++)
         {
             DeleteLogs();
 
-            var randomNetwork = GenerateRandomNetwork();
-            //Graph();
-            WriteNetworkToTopology(randomNetwork, topoFilePath, topoFileBackupPath);
-
+            WriteNetworkToTopology(individuals.get(i), topoFilePath, topoFileBackupPath);
             RunTest(i + 1);
 
             var resultPath = GetTestResultFilePath();
             var fitness = GetFitness(resultPath);
-            individuals.put(randomNetwork, fitness);
+            individuals.get(i).setFitness(fitness);
         }
 
         if (!FileIO.CopyFile(topoFileBackupPath, topoFilePath))
@@ -245,11 +292,9 @@ public class Population
         var timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(datetime);
         var gv = new GraphViz(timestamp);
 
-        var it = individuals.entrySet().iterator();
         var networkCount = 1;
-        while (it.hasNext())
+        for (var network : individuals)
         {
-            var network = it.next().getKey();
             gv.getGraph(network.getGraphOutput(), "network" + networkCount++);
             network.getGraphOutput();
         }

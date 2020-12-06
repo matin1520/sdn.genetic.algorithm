@@ -17,6 +17,9 @@ public final class Config
     private static int maxSwitchGenerationCount;
     private static int maxHostGenerationCount;
     private static int populationSize;
+    private static int selectionSize;
+    private static int tournamentK;
+    private static int generationNb;
     private static String testOnTestPath;
     private static String testOnLogsPath;
     private static String testOnBinPath;
@@ -31,6 +34,9 @@ public final class Config
     public static int getMaxSwitchGenerationCount() { return maxSwitchGenerationCount; }
     public static int getMaxHostGenerationCount() { return maxHostGenerationCount; }
     public static int getPopulationSize() { return populationSize; }
+    public static int getSelectionSize() { return selectionSize; }
+    public static int getTournamentK() { return tournamentK; }
+    public static int getGenerationNb() { return generationNb; }
     public static String getTestOnTestPath() { return testOnTestPath; }
     public static String getTestOnLogsPath() { return testOnLogsPath; }
     public static String getTestOnBinPath() { return testOnBinPath; }
@@ -94,6 +100,9 @@ public final class Config
         maxSwitchGenerationCount = Integer.parseInt(properties.getProperty("maxSwitchGenerationCount"));
         maxHostGenerationCount = Integer.parseInt(properties.getProperty("maxHostGenerationCount"));
         populationSize = Integer.parseInt(properties.getProperty("populationSize"));
+        selectionSize = Integer.parseInt(properties.getProperty("selectionSize"));
+        tournamentK = Integer.parseInt(properties.getProperty("tournamentK"));
+        generationNb = Integer.parseInt(properties.getProperty("generationNb"));
         testOnTestPath = properties.getProperty("testOnTestPath");
         networkTopologyPath = properties.getProperty("networkTopologyPath");
         testOnLogsPath = testOnTestPath.substring(0, testOnTestPath.indexOf("TestON")) + "TestON/logs/";

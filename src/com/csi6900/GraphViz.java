@@ -7,7 +7,7 @@ import java.util.*;
 
 public class GraphViz
 {
-    private String dirName = "graphs";
+    private String dirName;
 
     public GraphViz()
     {
@@ -16,8 +16,9 @@ public class GraphViz
 
     public GraphViz(String subDir)
     {
-        FileIO.CreateDirectory(dirName);
-        FileIO.CreateSubDirectory(dirName, subDir);
+        FileIO.CreateDirectory("graphs");
+        FileIO.CreateSubDirectory("graphs", subDir);
+        dirName = "graphs" + "/" + subDir;
     }
 
     public void getGraph(HashMap<Node, Node> sortedLinks, String name)
